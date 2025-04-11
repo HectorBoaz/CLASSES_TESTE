@@ -1,0 +1,45 @@
+name: ClassesPlugin
+version: 1.0
+api-version: 1.21
+main: com.minecraft.classesplugin.Main
+description: um plugin de economia para o servidor do hector
+commands:
+  classe:
+    description: Comandos de classe
+    usage: /classe [escolher|info|missoes|habilidades]
+    aliases: [class]
+  missao:
+    description: Ver suas missões atuais
+    usage: /missao
+    aliases: [quest]
+  classeadmin:
+    description: Comandos administrativos para o sistema de classes
+    usage: /classeadmin
+    permission: classes.admin
+    permission-message: Você não tem permissão para usar este comando!
+
+permissions:
+  classes.admin.*:
+    description: Permite acesso a todos os comandos administrativos
+    children:
+      classes.admin.setclasse: true
+      classes.admin.resetclasse: true
+      classes.admin.xp.add: true
+      classes.admin.xp.remove: true
+      classes.admin.xp.set: true
+      classes.admin.nivel.set: true
+      classes.admin.nivel.add: true
+      classes.admin.missao.complete: true
+      classes.admin.missao.reset: true
+      classes.admin.missao.setprogress: true
+      classes.admin.info: true
+      classes.admin.reload: true
+      classes.admin.list: true
+    default: op
+  classes.admin.setclasse:
+    description: Permite definir a classe de um jogador
+    default: op
+  classes.admin.resetclasse:
+    description: Permite remover a classe de um jogador
+    default: op
+  # Adicione todas as outras permissões aqui

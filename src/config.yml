@@ -1,0 +1,107 @@
+# ClassesPlugin - Configuração
+# Versão 1.0
+
+# Configurações gerais
+general:
+  # Penalidade por troca de classe (0.5 = 50% do nível atual)
+  class-change-penalty: 0.5
+  # Mostrar scoreboard por padrão
+  show-scoreboard: true
+  # Tempo (em ticks) entre atualizações de efeitos visuais (20 = 1 segundo)
+  visual-effects-interval: 20
+
+# Configurações de XP
+xp:
+  # Multiplicador global de XP (1.0 = normal, 2.0 = dobro, etc.)
+  multiplier: 1.0
+
+# Configurações de classes
+classes:
+  # Minerador
+  minerador:
+    enabled: true
+    display-name: "Minerador"
+    description: "Especialista em minerar recursos"
+    # XP por tipo de minério
+    xp-values:
+      coal_ore: 5
+      iron_ore: 10
+      gold_ore: 15
+      redstone_ore: 12
+      lapis_ore: 20
+      diamond_ore: 30
+      ancient_debris: 50
+    # Níveis necessários para minerar
+    level-requirements:
+      coal_ore: 1
+      iron_ore: 2
+      gold_ore: 5
+      redstone_ore: 10
+      lapis_ore: 15
+      diamond_ore: 20
+      ancient_debris: 30
+
+  # Caçador
+  cacador:
+    enabled: true
+    display-name: "Caçador"
+    description: "Especialista em caçar monstros"
+    # XP por tipo de monstro
+    xp-values:
+      zombie: 10
+      skeleton: 12
+      spider: 8
+      creeper: 15
+      witch: 20
+      phantom: 18
+      enderman: 25
+      blaze: 22
+      wither_skeleton: 30
+    # Chance de drops especiais (0.2 = 20%)
+    special-drop-chance: 0.2
+
+  # Pescador
+  pescador:
+    enabled: true
+    display-name: "Pescador"
+    description: "Especialista em pescaria"
+    # XP base por pesca
+    base-xp: 20
+    # Chance de pesca especial (0.15 = 15%)
+    special-catch-chance: 0.15
+
+  # Guerreiro
+  guerreiro:
+    enabled: true
+    display-name: "Guerreiro"
+    description: "Especialista em combate"
+
+  # Ferreiro
+  ferreiro:
+    enabled: true
+    display-name: "Ferreiro"
+    description: "Especialista em forjar equipamentos"
+    # Chance de criar itens aprimorados (0.3 = 30%)
+    enhanced-item-chance: 0.3
+
+  # Artesão
+  artesao:
+    enabled: true
+    display-name: "Artesão"
+    description: "Especialista em construção"
+
+# Configurações de missões
+quests:
+  # Tempo (em segundos) para atualizar progresso das missões
+  update-interval: 5
+  # Mensagem ao completar missão
+  complete-message: "&6Missão concluída: &e{quest_description}"
+
+# Configurações de mensagens
+messages:
+  prefix: "&7[&6Classes&7] "
+  level-up: "&a================================\n&eLEVEL UP! Você subiu para {class} nível {level}\n&aNovas habilidades desbloqueadas!\n&a================================"
+  class-chosen: "&aVocê agora é um {class}!"
+  class-change-warning: "&eVocê já é um {old_class} de nível {level}.\n&cMudar para {new_class} irá resetar parte do seu progresso!\n&eDigite '/classe confirmar' para confirmar a mudança."
+  permission-denied: "&cVocê não tem nível suficiente para fazer isso!"
+  tool-required: "&cVocê precisa de uma ferramenta adequada!"
