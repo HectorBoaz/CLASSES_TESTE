@@ -27,6 +27,8 @@ import java.util.*;
 
 public class Main extends JavaPlugin implements Listener {
 
+    //mensagem pro hector: oi
+
     private Map<UUID, PlayerClassData> playerClasses;
     private Map<String, ClassDefinition> availableClasses;
     private File playerDataFolder;
