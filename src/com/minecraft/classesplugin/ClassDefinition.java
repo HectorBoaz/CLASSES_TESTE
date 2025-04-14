@@ -9,7 +9,6 @@ public class ClassDefinition {
     private String name;
     private Map<Integer, Integer> levelRequirements;
     private Map<Integer, List<String>> levelPermissions;
-    private List<Quest> quests;
     private Set<Material> allowedTools;
     private Map<Integer, Particle> particleEffects;
     
@@ -17,7 +16,6 @@ public class ClassDefinition {
         this.name = name;
         this.levelRequirements = new HashMap<>();
         this.levelPermissions = new HashMap<>();
-        this.quests = new ArrayList<>();
         this.allowedTools = new HashSet<>();
         this.particleEffects = new HashMap<>();
     }
@@ -43,14 +41,7 @@ public class ClassDefinition {
     public List<String> getLevelPermissions(int level) {
         return levelPermissions.getOrDefault(level, new ArrayList<>());
     }
-    
-    public void addQuest(Quest quest) {
-        quests.add(quest);
-    }
-    
-    public List<Quest> getQuests() {
-        return quests;
-    }
+
     
     public void addAllowedTool(Material tool) {
         allowedTools.add(tool);

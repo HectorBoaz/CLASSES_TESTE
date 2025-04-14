@@ -7,12 +7,11 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.Map;
+import java.util.UUID;
 
 public class ClassCommandHandlerAdmin implements CommandExecutor {
 
@@ -47,26 +46,19 @@ public class ClassCommandHandlerAdmin implements CommandExecutor {
 
         if (subCommand.equals("setclasse") && args.length == 3) {
             return handleSetClasse(sender, args[1], args[2]);
-        }
-        else if (subCommand.equals("resetclasse") && args.length == 2) {
+        } else if (subCommand.equals("resetclasse") && args.length == 2) {
             return handleResetClasse(sender, args[1]);
-        }
-        else if (subCommand.equals("xp") && args.length == 4) {
+        } else if (subCommand.equals("xp") && args.length == 4) {
             return handleXP(sender, args[1], args[2], args[3]);
-        }
-        else if (subCommand.equals("nivel") && args.length == 4) {
+        } else if (subCommand.equals("nivel") && args.length == 4) {
             return handleNivel(sender, args[1], args[2], args[3]);
-        }
-        else if (subCommand.equals("missao") && args.length >= 4) {
+        } else if (subCommand.equals("missao") && args.length >= 4) {
             return handleMissao(sender, args[1], args[2], args[3], args.length > 4 ? args[4] : null);
-        }
-        else if (subCommand.equals("info") && args.length == 2) {
+        } else if (subCommand.equals("info") && args.length == 2) {
             return handleInfo(sender, args[1]);
-        }
-        else if (subCommand.equals("reload") && args.length == 1) {
+        } else if (subCommand.equals("reload") && args.length == 1) {
             return handleReload(sender);
-        }
-        else if (subCommand.equals("list") && args.length == 1) {
+        } else if (subCommand.equals("list") && args.length == 1) {
             return handleList(sender);
         }
 
@@ -87,7 +79,7 @@ public class ClassCommandHandlerAdmin implements CommandExecutor {
 
         className = className.toLowerCase();
         if (!plugin.getAvailableClasses().containsKey(className)) {
-            sender.sendMessage(ChatColor.RED + "Classe inválida! Escolha entre: minerador, cacador, pescador, guerreiro, ferreiro, artesao");
+            sender.sendMessage(ChatColor.RED + "Classe inválida! Escolha entre: minerador, cacador, pescador, ferreiro");
             return true;
         }
 
@@ -121,7 +113,6 @@ public class ClassCommandHandlerAdmin implements CommandExecutor {
         data.setClassName(null);
         data.setLevel(1);
         data.setXp(0);
-        data.clearQuestProgress();
 
         // Salvar mudanças
         plugin.savePlayerData(playerId);
@@ -159,19 +150,16 @@ public class ClassCommandHandlerAdmin implements CommandExecutor {
             data.addXp(amount);
             sender.sendMessage(ChatColor.GREEN + "Adicionado " + amount + " de XP para " + targetPlayer.getName() + "!");
             targetPlayer.sendMessage(ChatColor.GREEN + "Um administrador adicionou " + amount + " de XP para você!");
-        }
-        else if (action.equalsIgnoreCase("remove")) {
+        } else if (action.equalsIgnoreCase("remove")) {
             int currentXp = data.getXp();
             data.setXp(Math.max(0, currentXp - amount));
             sender.sendMessage(ChatColor.GREEN + "Removido " + Math.min(currentXp, amount) + " de XP de " + targetPlayer.getName() + "!");
             targetPlayer.sendMessage(ChatColor.YELLOW + "Um administrador removeu " + Math.min(currentXp, amount) + " de XP de você!");
-        }
-        else if (action.equalsIgnoreCase("set")) {
+        } else if (action.equalsIgnoreCase("set")) {
             data.setXp(Math.max(0, amount));
             sender.sendMessage(ChatColor.GREEN + "XP de " + targetPlayer.getName() + " definido para " + amount + "!");
             targetPlayer.sendMessage(ChatColor.YELLOW + "Um administrador definiu seu XP para " + amount + "!");
-        }
-        else {
+        } else {
             sender.sendMessage(ChatColor.RED + "Ação inválida! Use add, remove ou set.");
             return true;
         }
@@ -211,14 +199,12 @@ public class ClassCommandHandlerAdmin implements CommandExecutor {
             data.setLevel(Math.max(1, amount));
             sender.sendMessage(ChatColor.GREEN + "Nível de " + targetPlayer.getName() + " definido para " + amount + "!");
             targetPlayer.sendMessage(ChatColor.YELLOW + "Um administrador definiu seu nível para " + amount + "!");
-        }
-        else if (action.equalsIgnoreCase("add")) {
+        } else if (action.equalsIgnoreCase("add")) {
             int newLevel = data.getLevel() + amount;
             data.setLevel(Math.max(1, newLevel));
             sender.sendMessage(ChatColor.GREEN + "Adicionado " + amount + " níveis para " + targetPlayer.getName() + "!");
             targetPlayer.sendMessage(ChatColor.GREEN + "Um administrador adicionou " + amount + " níveis para você!");
-        }
-        else {
+        } else {
             sender.sendMessage(ChatColor.RED + "Ação inválida! Use set ou add.");
             return true;
         }
@@ -266,35 +252,7 @@ public class ClassCommandHandlerAdmin implements CommandExecutor {
         String className = data.getClassName().toLowerCase();
         ClassDefinition classDef = plugin.getAvailableClasses().get(className);
 
-        // Verificar se a missão existe
-        Quest targetQuest = null;
-        for (Quest quest : classDef.getQuests()) {
-            if (quest.getId().equals(questId)) {
-                targetQuest = quest;
-                break;
-            }
-        }
-
-        if (targetQuest == null) {
-            sender.sendMessage(ChatColor.RED + "Missão não encontrada para a classe " + className + "!");
-            return true;
-        }
-
-        if (action.equalsIgnoreCase("complete")) {
-            data.completeQuest(questId);
-            sender.sendMessage(ChatColor.GREEN + "Missão '" + targetQuest.getDescription() + "' marcada como completa para " + targetPlayer.getName() + "!");
-            targetPlayer.sendMessage(ChatColor.GREEN + "Um administrador completou a missão '" + targetQuest.getDescription() + "' para você!");
-        }
-        else if (action.equalsIgnoreCase("reset")) {
-            data.setQuestProgress(questId, 0);
-            if (data.isQuestCompleted(questId)) {
-                // Remover da lista de concluídas também
-                data.getCompletedQuests().remove(questId);
-            }
-            sender.sendMessage(ChatColor.GREEN + "Progresso da missão '" + targetQuest.getDescription() + "' resetado para " + targetPlayer.getName() + "!");
-            targetPlayer.sendMessage(ChatColor.YELLOW + "Um administrador resetou seu progresso na missão '" + targetQuest.getDescription() + "'!");
-        }
-        else if (action.equalsIgnoreCase("setprogress")) {
+        if (action.equalsIgnoreCase("setprogress")) {
             if (progressStr == null) {
                 sender.sendMessage(ChatColor.RED + "Você precisa especificar o progresso!");
                 return true;
@@ -307,21 +265,7 @@ public class ClassCommandHandlerAdmin implements CommandExecutor {
                 sender.sendMessage(ChatColor.RED + "Progresso inválido! Use um número inteiro.");
                 return true;
             }
-
-            data.setQuestProgress(questId, Math.max(0, progress));
-
-            // Se o progresso atingiu o alvo, marcar como concluída
-            if (progress >= targetQuest.getTargetAmount()) {
-                data.completeQuest(questId);
-            }
-
-            sender.sendMessage(ChatColor.GREEN + "Progresso da missão '" + targetQuest.getDescription() +
-                    "' definido para " + progress + "/" + targetQuest.getTargetAmount() +
-                    " para " + targetPlayer.getName() + "!");
-            targetPlayer.sendMessage(ChatColor.YELLOW + "Um administrador definiu seu progresso na missão '" +
-                    targetQuest.getDescription() + "' para " + progress + "/" + targetQuest.getTargetAmount() + "!");
-        }
-        else {
+        } else {
             sender.sendMessage(ChatColor.RED + "Ação inválida! Use complete, reset ou setprogress.");
             return true;
         }
@@ -359,15 +303,6 @@ public class ClassCommandHandlerAdmin implements CommandExecutor {
         sender.sendMessage(ChatColor.GREEN + "Nível: " + ChatColor.YELLOW + level);
         sender.sendMessage(ChatColor.GREEN + "XP: " + ChatColor.YELLOW + xp +
                 (nextLevelXp > 0 ? "/" + nextLevelXp : " (Nível máximo)"));
-
-        // Mostrar missões
-        sender.sendMessage(ChatColor.GOLD + "Missões:");
-        for (Quest quest : classDef.getQuests()) {
-            boolean completed = data.isQuestCompleted(quest.getId());
-            int progress = data.getQuestProgress(quest.getId());
-            sender.sendMessage((completed ? ChatColor.GREEN + "✓ " : ChatColor.YELLOW) +
-                    quest.getDescription() + ": " + progress + "/" + quest.getTargetAmount());
-        }
 
         // Mostrar habilidades desbloqueadas
         sender.sendMessage(ChatColor.GOLD + "Habilidades desbloqueadas:");

@@ -8,15 +8,21 @@ commands:
     description: Comandos de classe
     usage: /classe [escolher|info|missoes|habilidades]
     aliases: [class]
-  missao:
-    description: Ver suas missões atuais
-    usage: /missao
-    aliases: [quest]
   classeadmin:
     description: Comandos administrativos para o sistema de classes
     usage: /classeadmin
     permission: classes.admin
     permission-message: Você não tem permissão para usar este comando!
+  gemasadmin:
+    description: Comando para administradores darem gemas e multiplicadores
+    usage: /gemasadmin [gema|multiplicador] <tipo> <quantidade>
+    permission: classes.admin
+    permission-message: Você não tem permissão para usar este comando!
+    peixeadmin:
+      description: Comando para administradores obterem peixes especiais
+      usage: /peixeadmin <tipo> [quantidade]
+      permission: classes.admin
+      permission-message: Você não tem permissão para usar este comando!
 
 permissions:
   classes.admin.*:
@@ -39,7 +45,4 @@ permissions:
   classes.admin.setclasse:
     description: Permite definir a classe de um jogador
     default: op
-  classes.admin.resetclasse:
-    description: Permite remover a classe de um jogador
-    default: op
-  # Adicione todas as outras permissões aqui
+  # Outras permissões...

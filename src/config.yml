@@ -70,12 +70,6 @@ classes:
     # Chance de pesca especial (0.15 = 15%)
     special-catch-chance: 0.15
 
-  # Guerreiro
-  guerreiro:
-    enabled: true
-    display-name: "Guerreiro"
-    description: "Especialista em combate"
-
   # Ferreiro
   ferreiro:
     enabled: true
@@ -84,18 +78,10 @@ classes:
     # Chance de criar itens aprimorados (0.3 = 30%)
     enhanced-item-chance: 0.3
 
-  # Artesão
-  artesao:
+  restrict-enchantments:
     enabled: true
-    display-name: "Artesão"
-    description: "Especialista em construção"
-
-# Configurações de missões
-quests:
-  # Tempo (em segundos) para atualizar progresso das missões
-  update-interval: 5
-  # Mensagem ao completar missão
-  complete-message: "&6Missão concluída: &e{quest_description}"
+    non-ferreiro-penalty: true  # Penalizar não-ferreiros que tentam encantar
+    destroy-restricted-items: false  # Se itens encantados restritos devem ser destruídos quando obtidos
 
 # Configurações de mensagens
 messages:

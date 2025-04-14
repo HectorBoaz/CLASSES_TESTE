@@ -5,18 +5,16 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class PlayerClassData {
+public class    PlayerClassData {
     private String className;
     private int level;
     private int xp;
-    private Map<String, Integer> questProgress;
     private Set<String> completedQuests;
     
     public PlayerClassData(String className, int level, int xp) {
         this.className = className;
         this.level = level;
         this.xp = xp;
-        this.questProgress = new HashMap<>();
         this.completedQuests = new HashSet<>();
     }
     
@@ -48,19 +46,6 @@ public class PlayerClassData {
         this.xp += amount;
     }
     
-    public int getQuestProgress(String questId) {
-        return questProgress.getOrDefault(questId, 0);
-    }
-    
-    public void setQuestProgress(String questId, int progress) {
-        questProgress.put(questId, progress);
-    }
-    
-    public void incrementQuestProgress(String questId) {
-        int currentProgress = getQuestProgress(questId);
-        questProgress.put(questId, currentProgress + 1);
-    }
-    
     public boolean isQuestCompleted(String questId) {
         return completedQuests.contains(questId);
     }
@@ -69,16 +54,8 @@ public class PlayerClassData {
         completedQuests.add(questId);
     }
     
-    public Map<String, Integer> getQuestProgress() {
-        return questProgress;
-    }
-    
     public Set<String> getCompletedQuests() {
         return completedQuests;
     }
-    
-    public void clearQuestProgress() {
-        questProgress.clear();
-        completedQuests.clear();
+
     }
-}
