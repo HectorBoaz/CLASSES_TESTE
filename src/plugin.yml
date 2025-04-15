@@ -18,11 +18,16 @@ commands:
     usage: /gemasadmin [gema|multiplicador] <tipo> <quantidade>
     permission: classes.admin
     permission-message: Você não tem permissão para usar este comando!
-    peixeadmin:
-      description: Comando para administradores obterem peixes especiais
-      usage: /peixeadmin <tipo> [quantidade]
-      permission: classes.admin
-      permission-message: Você não tem permissão para usar este comando!
+  peixeadmin:
+    description: Comando para administradores obterem peixes especiais
+    usage: /peixeadmin <tipo> [quantidade]
+    permission: classes.admin
+    permission-message: Você não tem permissão para usar este comando!
+  trocaclasse:
+    description: "Comando para trocar sua classe (CUIDADO: perde todo progresso)"
+    usage: "/trocaclasse"
+    aliases:
+      - mudarclasse
 
 permissions:
   classes.admin.*:
