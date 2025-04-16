@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class BlockMiningData {
+public class    BlockMiningData {
 
     private final Map<String, com.minecraft.classesplugin.BlockMiningData> minedBlocks = new HashMap<>();
     private static final long BLOCK_COOLDOWN = 3600000; // 1 hora em milissegundos

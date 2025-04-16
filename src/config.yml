@@ -91,3 +91,12 @@ messages:
   class-change-warning: "&eVocê já é um {old_class} de nível {level}.\n&cMudar para {new_class} irá resetar parte do seu progresso!\n&eDigite '/classe confirmar' para confirmar a mudança."
   permission-denied: "&cVocê não tem nível suficiente para fazer isso!"
   tool-required: "&cVocê precisa de uma ferramenta adequada!"
+
+  # Configurações para o sistema de balanceamento de mobs
+  mob-balance:
+    enabled: true
+    debug: false # Quando true, mostra mensagens de debug no console
+
+    # Configurações para controle de Iron Golems
+    iron-golems:
+      block-natural-spawn: true

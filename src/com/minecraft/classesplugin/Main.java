@@ -9,6 +9,12 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -22,6 +28,7 @@ import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -29,14 +36,14 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.*;
 
+
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class Main extends JavaPlugin implements Listener {
+
+    //mensagem pro hector: oi
 
     private Map<UUID, PlayerClassData> playerClasses;
     private Map<String, ClassDefinition> availableClasses;
@@ -51,8 +58,42 @@ public class Main extends JavaPlugin implements Listener {
     private final HashMap<UUID, Long> ferreiroCooldowns = new HashMap<>();
 
     // Substitua o mapa existente de blocos minerados
+    private final Map<String, BlockMiningData> minedBlocks = new HashMap<>();
+    private static final long BLOCK_COOLDOWN = 3600000; // 1 hora em milissegundos
 
-    private LavaFishingSystem lavaFishingSystem;
+    // Classe para armazenar dados detalhados sobre a mineração
+    private class BlockMiningData {
+        private final long timestamp;
+        private final boolean wasNaturalBlock;
+
+        public BlockMiningData(long timestamp, boolean wasNaturalBlock) {
+            this.timestamp = timestamp;
+            this.wasNaturalBlock = wasNaturalBlock;
+        }
+
+        private void cleanupMinedBlocks() {
+            long currentTime = System.currentTimeMillis();
+            Iterator<Map.Entry<String, BlockMiningData>> iterator = minedBlocks.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<String, BlockMiningData> entry = iterator.next();
+                if (currentTime - entry.getValue().getTimestamp() > BLOCK_COOLDOWN) {
+                    iterator.remove();
+                }
+            }
+        }
+
+        public long getTimestamp() {
+            return timestamp;
+        }
+
+        public boolean wasNaturalBlock() {
+            return wasNaturalBlock;
+        }
+
+        public boolean isExpired() {
+            return System.currentTimeMillis() - timestamp > BLOCK_COOLDOWN;
+        }
+    }
 
     /**
      * Obtém o mapa de definições de classes disponíveis
@@ -82,21 +123,20 @@ public class Main extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         // Inicializa o sistema
-        lavaFishingSystem = new LavaFishingSystem(this);
-
-        // Cria a receita
-        NamespacedKey recipeKey = new NamespacedKey(String.valueOf(this), "lava_fishing_rod");
-        ShapedRecipe recipe = new ShapedRecipe(recipeKey, lavaFishingSystem.createLavaFishingRod());
-
-        recipe.shape("  B", " BS", "B S");
-        recipe.setIngredient('B', Material.BLAZE_ROD);
-        recipe.setIngredient('S', Material.MAGMA_CREAM);
-
-        Bukkit.addRecipe(recipe);
-
         // Inicialização do plugin
         saveDefaultConfig();
         config = getConfig();
+
+        getServer().getScheduler().runTaskTimer(this, () -> {
+            // Limpar dados de jogadores offline
+            Iterator<Map.Entry<UUID, PlayerMovementData>> it = playerMovementData.entrySet().iterator();
+            while (it.hasNext()) {
+                UUID playerId = it.next().getKey();
+                if (getServer().getPlayer(playerId) == null) {
+                    it.remove();
+                }
+            }
+        }, 12000L, 12000L); // Verificar a cada 10 minutos
 
         // Criar pasta para dados de jogadores
         playerDataFolder = new File(getDataFolder(), "playerdata");
@@ -111,7 +151,6 @@ public class Main extends JavaPlugin implements Listener {
         customFishSystem = new CustomFishSystem(this);
         ClassesAPI.init(this);
         getLogger().info("Sistema de Classes API inicializada!");
-        LavaFishingSystem lavaFishingSystem = new LavaFishingSystem(this);
         ClassSelectionGUI ClassSelectionGUI = new ClassSelectionGUI(this);
         // ferreiroCooldowns já é inicializado na declaração
 
@@ -121,6 +160,7 @@ public class Main extends JavaPlugin implements Listener {
 
         // Inicializar o sistema de multiplicador de XP
         xpMultiplierSystem = new XpMultiplierSystem(this);
+        getLogger().info("Sistema de Balanceamento de Mobs inicializado!");
 
         // Adicione estes campos na classe Main
         Map<String, Integer> classCounters = new HashMap<>();
@@ -141,7 +181,6 @@ public class Main extends JavaPlugin implements Listener {
         getCommand("gemasadmin").setExecutor(new GemasAdminCommand(gemSystem, xpMultiplierSystem));
         getCommand("peixeadmin").setExecutor(new GemasAdminCommand(gemSystem, xpMultiplierSystem));
         getCommand("trocaclasse").setExecutor(new TrocaClasseCommand(this, ClassSelectionGUI));
-        getCommand("lavapesca").setExecutor(new LavaFishingAdminCommand(lavaFishingSystem));
 
 
         // Agendador para efeitos visuais e atualizações
@@ -174,6 +213,74 @@ public class Main extends JavaPlugin implements Listener {
             e.printStackTrace();
         }
     }
+
+
+    private static class PlayerMovementData {
+        private final Location lastLocation;
+        private final long timestamp;
+        private int stationaryCount;
+
+        public PlayerMovementData(Location location) {
+            this.lastLocation = location;
+            this.timestamp = System.currentTimeMillis();
+            this.stationaryCount = 0;
+        }
+
+        public Location getLastLocation() {
+            return lastLocation;
+        }
+
+        public long getTimestamp() {
+            return timestamp;
+        }
+
+        public int getStationaryCount() {
+            return stationaryCount;
+        }
+
+        public void incrementStationaryCount() {
+            this.stationaryCount++;
+        }
+
+        public void resetStationaryCount() {
+            this.stationaryCount = 0;
+        }
+    }
+
+    /**
+     * Verifica se um jogador está parado há muito tempo (possível AFK)
+     * @param playerId UUID do jogador
+     * @param currentLocation Localização atual do jogador
+     * @return true se o jogador estiver "AFK"
+     */
+    public boolean isPlayerStationary(UUID playerId, Location currentLocation) {
+        // Verificar se temos dados anteriores
+        if (!playerMovementData.containsKey(playerId)) {
+            playerMovementData.put(playerId, new PlayerMovementData(currentLocation));
+            return false;
+        }
+
+        // Obter dados anteriores
+        PlayerMovementData data = playerMovementData.get(playerId);
+        Location lastLocation = data.getLastLocation();
+
+        // Verificar se o jogador se moveu
+        double distance = lastLocation.distance(currentLocation);
+        boolean isStationary = distance < 0.2; // Limiar para considerar como "parado"
+
+        // Atualizar dados
+        if (isStationary) {
+            data.incrementStationaryCount();
+        } else {
+            // Criar um novo registro com a localização atual
+            playerMovementData.put(playerId, new PlayerMovementData(currentLocation));
+        }
+
+        // Verificar se o jogador ficou parado por muito tempo
+        return data.getStationaryCount() > 10; // 10 verificações consecutivas
+    }
+
+    private Map<UUID, PlayerMovementData> playerMovementData = new HashMap<>();
 
     private void loadClassCounters() {
         classCountersFile = new File(getDataFolder(), "class_counters.yml");
@@ -1810,17 +1917,6 @@ public class Main extends JavaPlugin implements Listener {
         // Resto da lógica para pescadores...
         ClassDefinition classDef = availableClasses.get(className);
 
-        // Verificar se o evento é de pesca na lava
-        boolean isLavaFishing = isLavaFishing(event);
-
-        // Se for pesca na lava, mas não tiver a vara especial, cancelar
-        LavaFishingSystem lavaFishingSystem = null;
-        if (isLavaFishing && !lavaFishingSystem.isLavaFishingRod(player.getInventory().getItemInMainHand())) {
-            event.setCancelled(true);
-            player.sendMessage(ChatColor.RED + "Você precisa de uma Vara de Pesca Ígnia para pescar na lava!");
-            return;
-        }
-
         if (event.getState() == PlayerFishEvent.State.CAUGHT_FISH) {
             // Verificar se está usando uma vara de pesca
             ItemStack tool = player.getInventory().getItemInMainHand();
@@ -1841,11 +1937,9 @@ public class Main extends JavaPlugin implements Listener {
             applyFishingSpeedBonus(player, level);
 
             // Gerar um peixe customizado baseado no nível e se é pesca na lava
-            ItemStack customFish;
-            if (isLavaFishing) {
-                customFish = getRandomLavaFish(level);
-            } else {
-                customFish = customFishSystem.getRandomFish(level);
+
+            ItemStack customFish = customFishSystem.getRandomFish(level);
+            {
             }
 
             // Dropar o peixe no mundo
@@ -1905,24 +1999,6 @@ public class Main extends JavaPlugin implements Listener {
             // Mensagem de XP
             player.sendMessage(ChatColor.GREEN + "+" + finalXp + " XP de Pescador (" + fishType.getDisplayName() + ChatColor.GREEN + " - " + rarityMessage + ")");
 
-            // NOVA FUNCIONALIDADE: Chance de pescar um fragmento de lava
-            if (!isLavaFishing) { // Só pode encontrar o fragmento na água normal
-                ItemStack lavaShard = lavaFishingSystem.tryFindLavaShard(player, level);
-                if (lavaShard != null) {
-                    player.getWorld().dropItemNaturally(player.getLocation(), lavaShard);
-                    player.sendMessage(ChatColor.GOLD + "✨ Você encontrou um " + ChatColor.RED + "Fragmento de Lava" + ChatColor.GOLD + " muito raro! ✨");
-                    player.playSound(player.getLocation(), Sound.ENTITY_BLAZE_DEATH, 0.7f, 0.6f);
-                    player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 0.7f);
-                    player.getWorld().spawnParticle(Particle.LAVA, player.getLocation(), 30, 0.7, 0.7, 0.7, 0.1);
-
-                    // Anunciar para todos os jogadores
-                    for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                        onlinePlayer.sendMessage(ChatColor.GOLD + "✦✦✦ " + ChatColor.WHITE + player.getName() +
-                                ChatColor.GOLD + " encontrou um item lendário: " + ChatColor.RED + "Fragmento de Lava" + ChatColor.GOLD + "! ✦✦✦");
-                    }
-                }
-            }
-
             // FUNCIONALIDADE EXISTENTE: Chance de pescar um multiplicador de XP
             ItemStack multiplierItem = xpMultiplierSystem.getRandomMultiplierForLevel(data.getLevel());
             if (multiplierItem != null) {
@@ -1949,6 +2025,7 @@ public class Main extends JavaPlugin implements Listener {
     private ItemStack getRandomLavaFish(int level) {
         return null;
     }
+    
 
     @EventHandler
     public void onPlayerUseMultiplier(PlayerInteractEvent event) {
@@ -2799,4 +2876,6 @@ public class Main extends JavaPlugin implements Listener {
         super.reloadConfig();
         config = getConfig();
     }
-}
+
+
+    }
