@@ -23,6 +23,13 @@ commands:
     usage: /peixeadmin <tipo> [quantidade]
     permission: classes.admin
     permission-message: Você não tem permissão para usar este comando!
+  lavapesca:
+    description: "Comando para administradores obterem itens de pesca na lava"
+    usage: "/lavapesca [fragmento|vara] [quantidade]"
+    permission: classes.admin
+    permission-message: "Você não tem permissão para usar este comando!"
+    aliases:
+      - lavafish
   trocaclasse:
     description: "Comando para trocar sua classe (CUIDADO: perde todo progresso)"
     usage: "/trocaclasse"
