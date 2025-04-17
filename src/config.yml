@@ -100,3 +100,36 @@ messages:
     # Configurações para controle de Iron Golems
     iron-golems:
       block-natural-spawn: true
+
+      # Configurações para o sistema de XP de fornalha para Ferreiros
+      forge-xp:
+        enabled: true
+        xp-values:
+          # Materiais de ferro - XP: 4
+          iron:
+            ingot: 4
+            block: 36
+            raw: 4
+            raw-block: 36
+
+          # Materiais de ouro - XP: 5
+          gold:
+            ingot: 5
+            block: 45
+            raw: 5
+            raw-block: 45
+
+          # Materiais de cobre - XP: 3
+          copper:
+            ingot: 3
+            block: 27
+            raw: 3
+            raw-block: 27
+
+          # Outros materiais
+          food: 1
+          wood: 1
+          tools-armor: 2
+
+        # Cooldown entre ganhos de XP (em milissegundos)
+        cooldown: 2000

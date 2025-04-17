@@ -138,6 +138,12 @@ public class Main extends JavaPlugin implements Listener {
             }
         }, 12000L, 12000L); // Verificar a cada 10 minutos
 
+        Bukkit.getScheduler().runTaskTimer(this, () -> {
+            if (furnaceXpListener != null) {
+                furnaceXpListener.cleanupData();
+            }
+        }, 12000L, 12000L); // A cada 10 minutos
+
         // Criar pasta para dados de jogadores
         playerDataFolder = new File(getDataFolder(), "playerdata");
         if (!playerDataFolder.exists()) {
@@ -152,6 +158,10 @@ public class Main extends JavaPlugin implements Listener {
         ClassesAPI.init(this);
         getLogger().info("Sistema de Classes API inicializada!");
         ClassSelectionGUI ClassSelectionGUI = new ClassSelectionGUI(this);
+
+        furnaceXpListener = new FurnaceXpListener(this);
+        getServer().getPluginManager().registerEvents(furnaceXpListener, this);
+        getLogger().info("Sistema de XP de Fornalha para Ferreiros inicializado!");
         // ferreiroCooldowns já é inicializado na declaração
 
         // Registrar eventos
@@ -207,6 +217,10 @@ public class Main extends JavaPlugin implements Listener {
                 }
             }
 
+            if (furnaceXpListener != null) {
+                furnaceXpListener.cleanupData();
+            }
+
             getLogger().info("Sistema de Classes desativado. Dados salvos.");
         } catch (Exception e) {
             getLogger().severe("Erro crítico ao desativar o plugin: " + e.getMessage());
@@ -246,6 +260,8 @@ public class Main extends JavaPlugin implements Listener {
             this.stationaryCount = 0;
         }
     }
+
+
 
     /**
      * Verifica se um jogador está parado há muito tempo (possível AFK)
@@ -365,8 +381,8 @@ public class Main extends JavaPlugin implements Listener {
         minerador.addLevelPermission(4, "classes.minerador.ferro");
         minerador.addLevelPermission(8, "classes.minerador.ouro");
         minerador.addLevelPermission(14, "classes.minerador.redstone");
-        minerador.addLevelPermission(18, "classes.minerador.lapislazuli");
-        minerador.addLevelPermission(25, "classes.minerador.diamante");
+        minerador.addLevelPermission(17, "classes.minerador.lapislazuli");
+        minerador.addLevelPermission(20, "classes.minerador.diamante");
         minerador.addLevelPermission(30, "classes.minerador.netherite");
 
         // Ferramentas permitidas do Minerador
@@ -390,34 +406,34 @@ public class Main extends JavaPlugin implements Listener {
         ClassDefinition cacador = new ClassDefinition("Caçador");
         cacador.addLevelRequirement(1, 100);
         cacador.addLevelRequirement(2, 250);
-        cacador.addLevelRequirement(3, 450);
-        cacador.addLevelRequirement(4, 100);
-        cacador.addLevelRequirement(5, 250);
-        cacador.addLevelRequirement(6, 450);
-        cacador.addLevelRequirement(7, 100);
-        cacador.addLevelRequirement(8, 250);
-        cacador.addLevelRequirement(9, 450);
-        cacador.addLevelRequirement(10, 100);
-        cacador.addLevelRequirement(11, 250);
-        cacador.addLevelRequirement(12, 450);
-        cacador.addLevelRequirement(13, 100);
-        cacador.addLevelRequirement(14, 250);
-        cacador.addLevelRequirement(15, 450);
-        cacador.addLevelRequirement(16, 100);
-        cacador.addLevelRequirement(17, 250);
-        cacador.addLevelRequirement(18, 450);
-        cacador.addLevelRequirement(19, 100);
-        cacador.addLevelRequirement(20, 250);
-        cacador.addLevelRequirement(21, 450);
-        cacador.addLevelRequirement(22, 100);
-        cacador.addLevelRequirement(23, 250);
-        cacador.addLevelRequirement(24, 450);
-        cacador.addLevelRequirement(25, 100);
-        cacador.addLevelRequirement(26, 250);
-        cacador.addLevelRequirement(27, 450);
-        cacador.addLevelRequirement(28, 100);
-        cacador.addLevelRequirement(29, 250);
-        cacador.addLevelRequirement(30, 450);
+        cacador.addLevelRequirement(3, 750);
+        cacador.addLevelRequirement(4, 1500);
+        cacador.addLevelRequirement(5, 2500);
+        cacador.addLevelRequirement(6, 3500);
+        cacador.addLevelRequirement(7, 5000);
+        cacador.addLevelRequirement(8, 6500);
+        cacador.addLevelRequirement(9, 8000);
+        cacador.addLevelRequirement(10, 10000);
+        cacador.addLevelRequirement(11, 12500);
+        cacador.addLevelRequirement(12, 15000);
+        cacador.addLevelRequirement(13, 17500);
+        cacador.addLevelRequirement(14, 20000);
+        cacador.addLevelRequirement(15, 24000);
+        cacador.addLevelRequirement(16, 28000);
+        cacador.addLevelRequirement(17, 32000);
+        cacador.addLevelRequirement(18, 38000);
+        cacador.addLevelRequirement(19, 45000);
+        cacador.addLevelRequirement(20, 52000);
+        cacador.addLevelRequirement(21, 60000);
+        cacador.addLevelRequirement(22, 70000);
+        cacador.addLevelRequirement(23, 80000);
+        cacador.addLevelRequirement(24, 90000);
+        cacador.addLevelRequirement(25, 100000);
+        cacador.addLevelRequirement(26, 115000);
+        cacador.addLevelRequirement(27, 130000);
+        cacador.addLevelRequirement(28, 150000);
+        cacador.addLevelRequirement(29, 170000);
+        cacador.addLevelRequirement(30, 200000);
 
 
         cacador.addLevelPermission(1, "classes.cacador.animais");
@@ -445,35 +461,35 @@ public class Main extends JavaPlugin implements Listener {
         // Classe Pescador
         ClassDefinition pescador = new ClassDefinition("Pescador");
         pescador.addLevelRequirement(1, 100);
-        pescador.addLevelRequirement(2, 200);
-        pescador.addLevelRequirement(3, 350);
-        pescador.addLevelRequirement(4, 100);
-        pescador.addLevelRequirement(5, 200);
-        pescador.addLevelRequirement(6, 350);
-        pescador.addLevelRequirement(7, 100);
-        pescador.addLevelRequirement(8, 200);
-        pescador.addLevelRequirement(9, 350);
-        pescador.addLevelRequirement(10, 100);
-        pescador.addLevelRequirement(11, 200);
-        pescador.addLevelRequirement(12, 350);
-        pescador.addLevelRequirement(13, 100);
-        pescador.addLevelRequirement(14, 200);
-        pescador.addLevelRequirement(15, 350);
-        pescador.addLevelRequirement(16, 100);
-        pescador.addLevelRequirement(17, 200);
-        pescador.addLevelRequirement(18, 350);
-        pescador.addLevelRequirement(19, 100);
-        pescador.addLevelRequirement(20, 200);
-        pescador.addLevelRequirement(21, 350);
-        pescador.addLevelRequirement(22, 100);
-        pescador.addLevelRequirement(23, 200);
-        pescador.addLevelRequirement(24, 350);
-        pescador.addLevelRequirement(25, 100);
-        pescador.addLevelRequirement(26, 200);
-        pescador.addLevelRequirement(27, 350);
-        pescador.addLevelRequirement(28, 100);
-        pescador.addLevelRequirement(29, 200);
-        pescador.addLevelRequirement(30, 350);
+        pescador.addLevelRequirement(2, 375);
+        pescador.addLevelRequirement(3, 1100);
+        pescador.addLevelRequirement(4, 2600);
+        pescador.addLevelRequirement(5, 4500);
+        pescador.addLevelRequirement(6, 6000);
+        pescador.addLevelRequirement(7, 7500);
+        pescador.addLevelRequirement(8, 9000);
+        pescador.addLevelRequirement(9, 11000);
+        pescador.addLevelRequirement(10, 13000);
+        pescador.addLevelRequirement(11, 15000);
+        pescador.addLevelRequirement(12, 18000);
+        pescador.addLevelRequirement(13, 21000);
+        pescador.addLevelRequirement(14, 25000);
+        pescador.addLevelRequirement(15, 29000);
+        pescador.addLevelRequirement(16, 33000);
+        pescador.addLevelRequirement(17, 38000);
+        pescador.addLevelRequirement(18, 45000);
+        pescador.addLevelRequirement(19, 52000);
+        pescador.addLevelRequirement(20, 60000);
+        pescador.addLevelRequirement(21, 68000);
+        pescador.addLevelRequirement(22, 77000);
+        pescador.addLevelRequirement(23, 87000);
+        pescador.addLevelRequirement(24, 97000);
+        pescador.addLevelRequirement(25, 110000);
+        pescador.addLevelRequirement(26, 125000);
+        pescador.addLevelRequirement(27, 140000);
+        pescador.addLevelRequirement(28, 160000);
+        pescador.addLevelRequirement(29, 180000);
+        pescador.addLevelRequirement(30, 200000);
 
 
         pescador.addLevelPermission(1, "classes.pescador.peixes");
@@ -493,35 +509,35 @@ public class Main extends JavaPlugin implements Listener {
         // Classe Ferreiro
         ClassDefinition ferreiro = new ClassDefinition("Ferreiro");
         ferreiro.addLevelRequirement(1, 100);
-        ferreiro.addLevelRequirement(2, 600);
-        ferreiro.addLevelRequirement(3, 2000);
-        ferreiro.addLevelRequirement(4, 3000);
-        ferreiro.addLevelRequirement(5, 5000);
-        ferreiro.addLevelRequirement(6, 7900);
-        ferreiro.addLevelRequirement(7, 9000);
-        ferreiro.addLevelRequirement(8, 11150);
-        ferreiro.addLevelRequirement(9, 15000);
-        ferreiro.addLevelRequirement(10, 17000);
-        ferreiro.addLevelRequirement(11, 20050);
-        ferreiro.addLevelRequirement(12, 23000);
-        ferreiro.addLevelRequirement(13, 25000);
-        ferreiro.addLevelRequirement(14, 28050);
-        ferreiro.addLevelRequirement(15, 31000);
-        ferreiro.addLevelRequirement(16, 33000);
-        ferreiro.addLevelRequirement(17, 36050);
-        ferreiro.addLevelRequirement(18, 40000);
-        ferreiro.addLevelRequirement(19, 50000);
-        ferreiro.addLevelRequirement(20, 60000);
-        ferreiro.addLevelRequirement(21, 400);
-        ferreiro.addLevelRequirement(22, 100);
-        ferreiro.addLevelRequirement(23, 250);
-        ferreiro.addLevelRequirement(24, 400);
-        ferreiro.addLevelRequirement(25, 100);
-        ferreiro.addLevelRequirement(26, 250);
-        ferreiro.addLevelRequirement(27, 400);
-        ferreiro.addLevelRequirement(28, 100);
-        ferreiro.addLevelRequirement(29, 250);
-        ferreiro.addLevelRequirement(30, 400);
+        ferreiro.addLevelRequirement(2, 400);
+        ferreiro.addLevelRequirement(3, 1000);
+        ferreiro.addLevelRequirement(4, 1500);
+        ferreiro.addLevelRequirement(5, 2000);
+        ferreiro.addLevelRequirement(6, 3000);
+        ferreiro.addLevelRequirement(7, 4000);
+        ferreiro.addLevelRequirement(8, 5500);
+        ferreiro.addLevelRequirement(9, 7000);
+        ferreiro.addLevelRequirement(10, 9000);
+        ferreiro.addLevelRequirement(11, 11000);
+        ferreiro.addLevelRequirement(12, 13000);
+        ferreiro.addLevelRequirement(13, 15000);
+        ferreiro.addLevelRequirement(14, 18000);
+        ferreiro.addLevelRequirement(15, 21000);
+        ferreiro.addLevelRequirement(16, 24000);
+        ferreiro.addLevelRequirement(17, 27000);
+        ferreiro.addLevelRequirement(18, 30000);
+        ferreiro.addLevelRequirement(19, 35000);
+        ferreiro.addLevelRequirement(20, 40000);
+        ferreiro.addLevelRequirement(21, 48000);
+        ferreiro.addLevelRequirement(22, 58000);
+        ferreiro.addLevelRequirement(23, 70000);
+        ferreiro.addLevelRequirement(24, 85000);
+        ferreiro.addLevelRequirement(25, 100000);
+        ferreiro.addLevelRequirement(26, 120000);
+        ferreiro.addLevelRequirement(27, 140000);
+        ferreiro.addLevelRequirement(28, 165000);
+        ferreiro.addLevelRequirement(29, 190000);
+        ferreiro.addLevelRequirement(30, 215000);
 
 
         ferreiro.addLevelPermission(1, "classes.ferreiro.ferramentas.basicas");
@@ -2025,6 +2041,7 @@ public class Main extends JavaPlugin implements Listener {
     private ItemStack getRandomLavaFish(int level) {
         return null;
     }
+    private FurnaceXpListener furnaceXpListener;
     
 
     @EventHandler
